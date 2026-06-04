@@ -1,96 +1,84 @@
 #include <stdio.h>
 
-struct process{
-    int id;
-    int at,bt;
-    int ct,wt,tat;
-    int type; 
-    int rt;
-};
+int main() {
+    int n, i;
+    int at[20], bt[20], ct[20], wt[20], tat[20];
+    int rt[20], type[20];
+    int completed = 0, time = 0;
+    float avg_wt = 0, avg_tat = 0;
 
-int main(){
-
-    int n;
     printf("Enter number of processes: ");
-    scanf("%d",&n);
+    scanf("%d", &n);
 
-    struct process p[n];
+    for(i = 0; i < n; i++) {
+        printf("\nProcess %d\n", i + 1);
 
-    for(int i=0;i<n;i++){
+        printf("Enter Arrival Time: ");
+        scanf("%d", &at[i]);
 
-        printf("\nProcess %d\n",i);
+        printf("Enter Burst Time: ");
+        scanf("%d", &bt[i]);
 
-        p[i].id=i;
+        printf("Enter Type (0 = System, 1 = User): ");
+        scanf("%d", &type[i]);
 
-        printf("Enter arrival time: ");
-        scanf("%d",&p[i].at);
-
-        printf("Enter burst time: ");
-        scanf("%d",&p[i].bt);
-
-        printf("Enter type (0 = System, 1 = User): ");
-        scanf("%d",&p[i].type);
-
-        p[i].rt=p[i].bt;
+        rt[i] = bt[i];
     }
 
-    int completed=0,time=0;
+    while(completed < n) {
 
-    while(completed<n){
+        int idx = -1;
 
-        int idx=-1;
-
-        for(int i=0;i<n;i++){
-            if(p[i].at<=time && p[i].rt>0 && p[i].type==0){
-                if(idx==-1 || p[i].at<p[idx].at)
-                    idx=i;
+        for(i = 0; i < n; i++) {
+            if(at[i] <= time && rt[i] > 0 && type[i] == 0) {
+                if(idx == -1 || at[i] < at[idx])
+                    idx = i;
             }
         }
 
-        if(idx==-1){
-            for(int i=0;i<n;i++){
-                if(p[i].at<=time && p[i].rt>0 && p[i].type==1){
-                    if(idx==-1 || p[i].at<p[idx].at)
-                        idx=i;
+        if(idx == -1) {
+            for(i = 0; i < n; i++) {
+                if(at[i] <= time && rt[i] > 0 && type[i] == 1) {
+                    if(idx == -1 || at[i] < at[idx])
+                        idx = i;
                 }
             }
         }
 
-        if(idx==-1){
+        if(idx == -1) {
             time++;
             continue;
         }
 
-        p[idx].rt--;
+        rt[idx]--;
         time++;
 
-        if(p[idx].rt==0){
-
-            p[idx].ct=time;
-            p[idx].tat=p[idx].ct-p[idx].at;
-            p[idx].wt=p[idx].tat-p[idx].bt;
+        if(rt[idx] == 0) {
+            ct[idx] = time;
+            tat[idx] = ct[idx] - at[idx];
+            wt[idx] = tat[idx] - bt[idx];
 
             completed++;
         }
     }
 
-    float avgwt=0,avgtat=0;
+    printf("\nP\tType\tAT\tBT\tCT\tWT\tTAT\n");
 
-    printf("\nID\tType\tAT\tBT\tCT\tWT\tTAT\n");
+    for(i = 0; i < n; i++) {
 
-    for(int i=0;i<n;i++){
-
-        if(p[i].type==0)
-            printf("%d\tSystem\t%d\t%d\t%d\t%d\t%d\n",p[i].id,p[i].at,p[i].bt,p[i].ct,p[i].wt,p[i].tat);
+        if(type[i] == 0)
+            printf("P%d\tSystem\t%d\t%d\t%d\t%d\t%d\n",
+                   i + 1, at[i], bt[i], ct[i], wt[i], tat[i]);
         else
-            printf("%d\tUser\t%d\t%d\t%d\t%d\t%d\n",p[i].id,p[i].at,p[i].bt,p[i].ct,p[i].wt,p[i].tat);
+            printf("P%d\tUser\t%d\t%d\t%d\t%d\t%d\n",
+                   i + 1, at[i], bt[i], ct[i], wt[i], tat[i]);
 
-        avgwt+=p[i].wt;
-        avgtat+=p[i].tat;
+        avg_wt += wt[i];
+        avg_tat += tat[i];
     }
 
-    printf("\nAverage Waiting Time: %.2f",avgwt/n);
-    printf("\nAverage Turnaround Time: %.2f\n",avgtat/n);
+    printf("\nAverage Waiting Time = %.2f", avg_wt / n);
+    printf("\nAverage Turnaround Time = %.2f\n", avg_tat / n);
 
     return 0;
 }
